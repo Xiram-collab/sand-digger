@@ -325,11 +325,11 @@ var ORES=[
   }
 })();
 var UPG=[
-  {k:'d',max:7,cost:function(l){return [60,200,600,1600,4200,11000,28000][l];}},
+  {k:'d',max:7,cost:function(l){return [80,320,1100,3200,8000,19000,42000][l];}},
   {k:'f',max:5,cost:function(l){return [60,250,900,2800,7000][l];}},
   {k:'c',max:8,cost:function(l){return Math.round(50*Math.pow(2,l));}},
   {k:'w',max:5,cost:function(l){return Math.round(60*Math.pow(2.2,l));}},
-  {k:'a',max:4,cost:function(l){return [350,1400,5200,18000][l];}}
+  {k:'a',max:4,cost:function(l){return [300,800,2000,5000][l];}}
 ];
 var PORTLV=[
   {n:'Ponton renforcé',d:'Ponton plus long, lampadaires et fanions',cost:300},
@@ -446,10 +446,10 @@ function qInit(){S.q={a:[],st:{dug:0,found:0,rare:0,sell:0,earn:0}};qFill();}
 function qMake(){
   var ex={},i,C=[],o;S.q.a.forEach(function(q){ex[q.t+':'+(q.k||'')]=1;});
   var bm=1+.6*S.beach,ti=Math.floor(Math.random()*3);
-  var lv=S.pl||0;for(var uk in S.lv) lv+=S.lv[uk];var gm=1+lv*.25,sc=function(x,f){return Math.max(1,Math.round(x*(1+lv*f)));},r5=function(x){return x>=500?Math.round(x/10)*10:Math.max(15,Math.round(x/5)*5);};
-  function add(w,ob){if(ex[ob.t+':'+(ob.k||'')]) return;if(!ob.nb) ob.r=Math.min(600,r5(ob.r*bm*gm));for(var j=0;j<w;j++) C.push(ob);}
-  UPG.forEach(function(u){var l=S.lv[u.k];if(l<u.max) add(2,{t:'up',k:u.k,g:l+1,nb:1,r:r5(u.cost(l)*.1)});});
-  if(S.pl<5) add(2,{t:'port',g:S.pl+1,nb:1,r:r5(PORTLV[S.pl].cost*.1)});
+  var lv=S.pl||0;for(var uk in S.lv) lv+=S.lv[uk];var gm=1.4+lv*.3,sc=function(x,f){return Math.max(1,Math.round(x*(1+lv*f)));},r5=function(x){return x>=500?Math.round(x/10)*10:Math.max(15,Math.round(x/5)*5);};
+  function add(w,ob){if(ex[ob.t+':'+(ob.k||'')]) return;if(!ob.nb) ob.r=Math.min(900,r5(ob.r*bm*gm));for(var j=0;j<w;j++) C.push(ob);}
+  UPG.forEach(function(u){var l=S.lv[u.k];if(l<u.max) add(2,{t:'up',k:u.k,g:l+1,nb:1,r:r5(Math.max(30,u.cost(l)*.15))});});
+  if(S.pl<5) add(2,{t:'port',g:S.pl+1,nb:1,r:r5(PORTLV[S.pl].cost*.15)});
   add(1,{t:'dig',g:sc([30,60,110][ti],.06),r:[20,38,65][ti]});
   add(1,{t:'found',g:sc([3,6,10][ti],.04),r:[22,40,70][ti]});
   add(1,{t:'rare',g:sc([1,2,3][ti],.05),r:[35,65,105][ti]});
@@ -458,7 +458,7 @@ function qMake(){
   add(1,{t:'depth',g:[8,16,26][ti],nb:1,r:r5([20,38,60][ti]*bm*(1+lv*.1))});
   if(!C.length) add(1,{t:'dig',g:40,r:25});
   o=C[Math.floor(Math.random()*C.length)];
-  var q={t:o.t,g:o.g,r:o.r,p:0,done:false};if(o.k) q.k=o.k;q.b=S.q.st[o.t]||0;return q;
+  var q={t:o.t,g:o.g,r:o.r,p:0,done:false};if(o.k) q.k=o.k;q.b=S.q.st[o.t==='dig'?'dug':o.t]||0;return q;
 }
 function qFill(){while(S.q.a.length<4) S.q.a.push(qMake());}
 function qText(q){
@@ -480,7 +480,7 @@ function qCheck(depthT){
   S.q.a.forEach(function(q){
     if(!q.done){
       var p;
-      if(q.t==='up') p=S.lv[q.k];else if(q.t==='port') p=S.pl||0;else if(q.t==='depth') p=Math.max(q.p,depthT||0);else p=(S.q.st[q.t]||0)-q.b;
+      if(q.t==='up') p=S.lv[q.k];else if(q.t==='port') p=S.pl||0;else if(q.t==='depth') p=Math.max(q.p,depthT||0);else{var sk=q.t==='dig'?'dug':q.t;if(q.t==='dig'&&!q.fx){q.fx=1;q.b=S.q.st.dug||0;}p=(S.q.st[sk]||0)-q.b;}
       q.p=Math.min(p,q.g);
       if(p>=q.g){q.done=true;fresh++;}
     }
